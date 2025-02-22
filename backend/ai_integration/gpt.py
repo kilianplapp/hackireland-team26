@@ -16,10 +16,10 @@ def group_and_sort(products_json: str):
             {
                 "role": "system",
                 "content": (
-                    "You will be given json of products, icluding a field with their IDs. Come up with a maximum of five"
-                    "categories for the products and respond with a dictionary where the key is the name of the category"
-                    "and the value is a list of IDs belonging to it, sorted by the best value product. If there is no data,"
-                    "do not make up groups. Do not make up IDs."
+                    "You will be given json of grocery products, including a field with their IDs. Please group products that are the same but are "
+                    "from different brands or in different sizes. Make the cheapest product from each group have the best_deal boolean set to true. "
+                    "When grouping products, group them by use e.g Tomatoes are not same as Tomatoe Puree or Ketchup or Tomato Soup. "
+                    "Please return the groups and the products sorted by price within each group."
                 ),
             },
             {
