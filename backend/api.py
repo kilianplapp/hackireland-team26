@@ -43,6 +43,7 @@ def search_products():
 
     result = dict()
     for group_name, group in zip(group_names, groups):
+        result[group_name] = []
         for product_name in group:
             result[group_name] += [
                 p for p in all_products if p["title"] == product_name
