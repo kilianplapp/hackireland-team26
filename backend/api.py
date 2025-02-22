@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from scraping import tesco, supervalu, dunnes
 from ai_integration import group_and_sort
 import json
+
 app = Flask(__name__)
 
 id = 0
@@ -35,19 +36,17 @@ def search_products():
     # remove images from all products
     for product in all_products_short:
         product.pop("image", None)
-    
+
     response = dict(group_and_sort(str(json.dumps(all_products_short)), query))
     group_names = response["group_names"]
     groups = response["groups"]
 
     result = dict()
-    for i in range(len(group_names)):
-        group_name = group_names[i]
-        group = groups[i]
-        result[group_name] = []
-        for p in group:
-            all_products[p.id]["best_deal"] = p.best_deal
-            result[group_name] += [all_products[p.id]]
+    for group_name, group in zip(group_names, groups):
+        for product_name in group:
+            result[group_name] += [
+                p for p in all_products if p["title"] == product_name
+            ]
 
     return jsonify(result)
 

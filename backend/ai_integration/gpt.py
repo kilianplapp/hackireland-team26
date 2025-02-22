@@ -4,13 +4,8 @@ from pydantic import BaseModel
 client = OpenAI()
 
 
-class Product(BaseModel):
-    id: int
-    best_deal: bool
-
-
 class Products(BaseModel):
-    groups: list[list[Product]]
+    groups: list[list[str]]
     group_names: list[str]
 
 
@@ -21,10 +16,11 @@ def group_and_sort(products_json: str, query: str):
             {
                 "role": "system",
                 "content": (
-                    "You will be given json of grocery products, including a field with their IDs. Please group products that are the same but are "
-                    "from different brands or in different sizes. Create one group which is most relevant to the user's search query. "
-                    "Only add the best deal from each supermarket. Do not include bundles in the groups. e.g carrots & parsnips are a separate group to just carrots"
-                    "The user has searched for: " + query
+                    "You will be given json of grocery products, a result of a search for "
+                    f"a users query, which was {query}. Please group products that could be considered alternatives "
+                    "but are possibly from different brands and/or different sizes."
+                    "Output human-readable names for the groups and the groups, "
+                    "which should include exact names of the items as elements."
                 ),
             },
             {
