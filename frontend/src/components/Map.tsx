@@ -9,8 +9,7 @@ export default function Map() {
   const mapContainerRef = useRef(null);
 
   useEffect(() => {
-    mapboxgl.accessToken =
-      "pk.eyJ1IjoiMTIxMzA4NzU2IiwiYSI6ImNtNjU5YzFyZDFyZzUya3F0ZjluMnE0NHcifQ.byvxdkN_EdqJekDzfY5wlA";
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY;
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
