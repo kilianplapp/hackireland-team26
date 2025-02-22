@@ -8,15 +8,19 @@ app = Flask(__name__)
 def search_products():
     query = request.args.get("q", "").lower()
 
-    products = dict()
+    tesco_products = tesco(query)
+    for product in tesco_products:
+        product["store"] = "Tesco"
 
-    products["tesco"] = tesco(query)
+    dunnes_products = dunnes(query)
+    for product in dunnes_products:
+        product["store"] = "Dunnes"
 
-    products["dunnes"] = dunnes(query)
+    supervalu_products = supervalu(query)
+    for product in supervalu_products:
+        product["store"] = "SuperValu"
 
-    products["supervalu"] = supervalu(query)
-
-    return jsonify(products)
+    return jsonify(tesco_products + dunnes_products + supervalu_products)
 
 
 if __name__ == "__main__":
