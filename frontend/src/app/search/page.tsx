@@ -1,4 +1,4 @@
-import Map from "@/components/Map";
+// import Map from "@/components/Map";
 import Product from "@/components/Product";
 import Link from "next/link";
 
@@ -22,7 +22,7 @@ export default function SearchPage({ query }) {
         </div>
       </div>
 
-      <Map />
+      {/* <Map /> */}
     </div>
   );
 }
