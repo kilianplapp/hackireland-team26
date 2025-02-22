@@ -4,7 +4,7 @@ import re
 conn = psycopg2.connect(
     dbname="smartcartsql",
     user="postgres",
-    password="Lobotomite9",
+    password="BananaPeel",
     host="localhost",
     port="5432"
 )
