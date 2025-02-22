@@ -16,10 +16,10 @@ def main(query):
             title_text = title.inner_text().strip()
             price_text = price.inner_text().strip()
             products[title_text] = price_text
-
-        print(products)
         #page.screenshot(path=f'example-{p.chromium.name}.png')
         browser.close()
+
+        return products
 
 if __name__ == '__main__':
     main("carrots")
