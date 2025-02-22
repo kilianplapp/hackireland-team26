@@ -14,7 +14,7 @@ class Products(BaseModel):
     group_names: list[str]
 
 
-def group_and_sort(products_json: str):
+def group_and_sort(products_json: str, query: str):
     completion = client.beta.chat.completions.parse(
         model="gpt-4o-mini",
         messages=[
@@ -22,10 +22,9 @@ def group_and_sort(products_json: str):
                 "role": "system",
                 "content": (
                     "You will be given json of grocery products, including a field with their IDs. Please group products that are the same but are "
-                    "from different brands or in different sizes. Make the cheapest product from each group have the best_deal boolean set to true. "
-                    "When grouping products note their use case, e.g jarred goods are not the same as fresh ones."
-                    "Please return the groups and the products sorted by price within each group. Do not make up IDs"
-                    " and do not output empty groups."
+                    "from different brands or in different sizes. Create one group which is most relevant to the user's search query. "
+                    "Only add the best deal from each supermarket. Do not include bundles in the groups. e.g carrots & parsnips are a separate group to just carrots"
+                    "The user has searched for: " + query
                 ),
             },
             {
