@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from scraping import tesco
+from scraping import tesco, supervalu, dunnes
 
 app = Flask(__name__)
 
@@ -8,9 +8,15 @@ app = Flask(__name__)
 def search_products():
     query = request.args.get("q", "").lower()
 
-    tesco_products = tesco.main(query)
+    products = dict()
 
-    return jsonify(tesco_products)
+    products["tesco"] = tesco(query)
+
+    products["dunnes"] = dunnes(query)
+
+    products["supervalu"] = supervalu(query)
+
+    return jsonify(products)
 
 
 if __name__ == "__main__":
