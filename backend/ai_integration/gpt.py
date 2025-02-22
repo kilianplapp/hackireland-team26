@@ -23,8 +23,9 @@ def group_and_sort(products_json: str):
                 "content": (
                     "You will be given json of grocery products, including a field with their IDs. Please group products that are the same but are "
                     "from different brands or in different sizes. Make the cheapest product from each group have the best_deal boolean set to true. "
-                    "When grouping products, group them by use e.g Tomatoes are not same as Tomatoe Puree or Ketchup or Tomato Soup. "
-                    "Please return the groups and the products sorted by price within each group."
+                    "When grouping products note their use case, e.g jarred goods are not the same as fresh ones."
+                    "Please return the groups and the products sorted by price within each group. Do not make up IDs"
+                    " and do not output empty groups."
                 ),
             },
             {
