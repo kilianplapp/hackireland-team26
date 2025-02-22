@@ -19,7 +19,7 @@ def search_products():
         product["ID"] = id
         id += 1
 
-    dunnes_products = dunnes(jsonify(query))
+    dunnes_products = dunnes(query)
     for product in dunnes_products:
         product["store"] = "Dunnes"
         product["ID"] = id
@@ -37,7 +37,7 @@ def search_products():
         product["ID"] = id
         id += 1
 
-    all_products = tesco_products + supervalu_products + dunnes_products
+    all_products = tesco_products + supervalu_products + dunnes_products + aldi_products
     all_products_short = all_products.copy()
     # remove images from all products
     for product in all_products_short:

@@ -17,10 +17,13 @@ def group_and_sort(products_json: str, query: str):
                 "role": "system",
                 "content": (
                     "You will be given json of grocery products, a result of a search for "
-                    f"a users query, which was {query}. Please group products that could be considered alternatives "
-                    "but are possibly from different brands and/or different sizes."
+                    f"a users query, which was {query}. Output only one group which is most relevant to the users query. "
+                    "This group should contain JUST ONE PRODUCT FROM EACH SUPERMARKET."
+                    "This allows the user to search and find only the most relevant and best deal from each supermarket."
                     "Output human-readable names for the groups and the groups, "
                     "which should include exact names of the items as elements."
+                    "Your output will be interpreted by a computer so you must not deviate from this format."
+                    "Only output a single group."
                 ),
             },
             {
