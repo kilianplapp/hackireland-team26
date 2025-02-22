@@ -1,1 +1,3 @@
-from tesco import main as tesco
+from tesco import tesco
+from supervalu import supervalu
+from dunnes import dunnes

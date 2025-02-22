@@ -1,6 +1,6 @@
 from patchright.sync_api import sync_playwright
 
-def main(query):
+def tesco(query):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         page = browser.new_page()
@@ -22,4 +22,4 @@ def main(query):
         return products
 
 if __name__ == '__main__':
-    main("carrots")
+    tesco("carrots")
