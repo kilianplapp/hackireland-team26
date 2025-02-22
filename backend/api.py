@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from scraping import tesco, supervalu, dunnes
+from scraping import tesco, supervalu, dunnes, aldi
 from ai_integration import group_and_sort
 import json
 
@@ -28,6 +28,12 @@ def search_products():
     supervalu_products = supervalu(query)
     for product in supervalu_products:
         product["store"] = "SuperValu"
+        product["ID"] = id
+        id += 1
+
+    aldi_products = aldi(query)
+    for product in aldi_products:
+        product["store"] = "Aldi"
         product["ID"] = id
         id += 1
 
