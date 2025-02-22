@@ -7,7 +7,7 @@ from dunnes import dunnes
 from supervalu import supervalu
 from tesco import tesco
 
-def run_price_tracking(product_name):
+def price_tracker(product_name):
     """Runs the full price tracking workflow for the given product."""
     
     #Connect to SQL database
@@ -138,13 +138,13 @@ def run_price_tracking(product_name):
 
         df_daily_combined = pd.concat(all_daily_data)
 
-        # Plot price trends
+        #Plot price trends
         plt.figure(figsize=(12, 6))
 
-        # Daily Prices
+        #Daily Prices
         plt.plot(df_daily_combined['date'], df_daily_combined['price'], marker='o', linestyle='-', label="Daily Price Trend", color='blue')
 
-        # Historical Prices
+        #Historical Prices
         plt.plot(df_historical['inserted_at'], df_historical['price'], marker='s', linestyle='--', label="Historical Price Trend", color='red', alpha=0.7)
 
         plt.xlabel("Date")
@@ -170,7 +170,7 @@ def run_price_tracking(product_name):
 
     conn.commit()
 
-    # Run price comparison
+    #Run price comparison
     price_comparison(product_name)
 
     #Close database connection
@@ -182,4 +182,4 @@ def run_price_tracking(product_name):
 
 #This is an example. 
 #Function will look for price of potatoes
-run_price_tracking("potatoes")
+price_tracker("potatoes")
