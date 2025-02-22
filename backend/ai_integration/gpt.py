@@ -4,9 +4,14 @@ from pydantic import BaseModel
 client = OpenAI()
 
 
+class Product(BaseModel):
+    id: int
+    best_deal: bool
+
+
 class Products(BaseModel):
-    groups: list[str]
-    products: list[list[int]]
+    groups: list[list[Product]]
+    group_names: list[str]
 
 
 def group_and_sort(products_json: str):
@@ -31,4 +36,4 @@ def group_and_sort(products_json: str):
     )
 
     sorted_grouped_products = completion.choices[0].message.parsed
-    return sorted_grouped_products.groups, sorted_grouped_products.products
+    return sorted_grouped_products

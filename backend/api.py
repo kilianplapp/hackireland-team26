@@ -10,8 +10,9 @@ def search_products():
     query = request.args.get("q", "").lower()
 
     tesco_products = tesco(query)
-    for product in tesco_products:
+    for i, product in enumerate(tesco_products):
         product["store"] = "Tesco"
+        product["ID"] = i
 
     # dunnes_products = dunnes(jsonify(query))
     # for i, product in enumerate(dunnes_products):
@@ -22,13 +23,18 @@ def search_products():
     # for product in supervalu_products:
     #     product["store"] = "SuperValu"
 
-    groups, products = group_and_sort(str(tesco_products))
+    response = dict(group_and_sort(str(tesco_products)))
+    group_names = response["group_names"]
+    groups = response["groups"]
 
     result = dict()
-    for group, product in zip(groups, products):
-        result[group] = [
-            tesco_products[i] for i in product if (0 <= i and i < len(tesco_products))
-        ]
+    for i in range(len(group_names)):
+        group_name = group_names[i]
+        group = groups[i]
+        result[group_name] = []
+        for p in group:
+            tesco_products[p.id]["best_deal"] = p.best_deal
+            result[group_name] += [tesco_products[p.id]]
 
     return jsonify(result)
 
