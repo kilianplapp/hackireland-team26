@@ -246,10 +246,10 @@ def search_products():
         id_counter += 1
 
     all_products = tesco_products + supervalu_products + dunnes_products + aldi_products
-    all_products_short = all_products.copy()
-    # remove images from all products
-    for product in all_products_short:
-        product.pop("image", None)
+    all_products_short = [
+        {"title": p["title"], "ID": p["ID"], "store": p["store"], "price": p["price"]}
+        for p in all_products
+    ]
 
     response = dict(
         best_deal_from_each_store(str(json.dumps(all_products_short)), query)
@@ -259,7 +259,6 @@ def search_products():
     result = [p for p in all_products if p["title"] in best_deal_products]
     return jsonify(result)
 
-# CORS(app)
 
 if __name__ == "__main__":
     app.run(debug=True)
