@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from scraping import tesco, supervalu, dunnes, aldi
 from ai_integration import best_deal_from_each_store
 import psycopg2
@@ -9,6 +9,7 @@ import datetime
 from decimal import Decimal
 
 app = Flask(__name__)
+CORS(app)
 id_counter = 0
 
 
@@ -117,6 +118,7 @@ def insert_products_into_db(products, store_name):
 
 
 @app.route("/api/shopping-list")
+@cross_origin()
 def search_shopping_list_no_db():
     global id_counter
     shopping_list = request.args.getlist("items")
@@ -213,6 +215,7 @@ def search_shopping_list():
 
 
 @app.route("/api/products")
+@cross_origin()
 def search_products():
     global id_counter
     query = request.args.get("q", "").lower()
