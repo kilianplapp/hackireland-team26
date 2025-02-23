@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from scraping import tesco, supervalu, dunnes, aldi
 from ai_integration import best_deal_from_each_store
 import psycopg2
+import json
 import re
 import datetime
 from decimal import Decimal
