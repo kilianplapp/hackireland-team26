@@ -10,10 +10,11 @@ from decimal import Decimal
 
 app = Flask(__name__)
 CORS(app)
-id_counter = 0
+id_counter = 0  # Counter for assigning unique IDs to products
 
 
 def get_db_connection():
+    """Establish and return a database connection."""
     return psycopg2.connect(
         dbname="smartcartsql",
         user="postgres",
@@ -24,6 +25,7 @@ def get_db_connection():
 
 
 def fetch_cheapest_products_from_db(item):
+    """Retrieve the cheapest products for a given item from the database."""
     conn = get_db_connection()
     cur = conn.cursor()
     today_date = datetime.date.today().strftime("%Y_%m_%d")
@@ -31,6 +33,7 @@ def fetch_cheapest_products_from_db(item):
 
     print(f"🔍 Searching for '{item}' in table {daily_table}")
 
+    # Query to fetch the cheapest products for the given item
     cur.execute(
         f"""
         SELECT name, price, store, category, quantity, availability
@@ -46,7 +49,7 @@ def fetch_cheapest_products_from_db(item):
 
     store_cheapest = {}
     for row in rows:
-        store = row[2]  # Store name
+        store = row[2]  # Extract store name
         if store not in store_cheapest:
             store_cheapest[store] = {
                 "title": row[0],
@@ -63,11 +66,13 @@ def fetch_cheapest_products_from_db(item):
 
 
 def insert_products_into_db(products, store_name):
+    """Insert or update product data in the database."""
     conn = get_db_connection()
     cur = conn.cursor()
     today_date = datetime.date.today().strftime("%Y_%m_%d")
     daily_table = f"products_{today_date}"
 
+    # Create table if it doesn't exist
     cur.execute(f"""
         CREATE TABLE IF NOT EXISTS {daily_table} (
             id SERIAL PRIMARY KEY,
@@ -84,15 +89,17 @@ def insert_products_into_db(products, store_name):
     conn.commit()
 
     def extract_quantity(product_name):
+        """Extract and convert quantity from product name."""
         match = re.search(r"(\d+)(kg|g)", product_name, re.IGNORECASE)
         if match:
             weight, unit = match.groups()
             weight = float(weight)
             if unit.lower() == "g":
-                weight /= 1000
+                weight /= 1000  # Convert grams to kilograms
             return weight
-        return 1
+        return 1  # Default quantity if none found
 
+    # Insert or update each product
     for product in products:
         name = product["title"]
         price_text = product["price"]
@@ -116,12 +123,15 @@ def insert_products_into_db(products, store_name):
     cur.close()
     conn.close()
 
+
 @app.route("/api/products")
 @cross_origin()
 def search_products():
+    """Handle product search requests by querying multiple stores."""
     global id_counter
     query = request.args.get("q", "").lower()
 
+    # Scrape product data from various stores
     tesco_products = tesco(query)
     for product in tesco_products:
         product["store"] = "Tesco"
@@ -146,17 +156,22 @@ def search_products():
         product["ID"] = id_counter
         id_counter += 1
 
+    # Combine all product lists
     all_products = tesco_products + supervalu_products + dunnes_products + aldi_products
+
+    # Create a shortened version of the product list for AI processing
     all_products_short = [
         {"title": p["title"], "ID": p["ID"], "store": p["store"], "price": p["price"]}
         for p in all_products
     ]
 
+    # Process data with AI for categorising and deal recommendation
     response = dict(
         best_deal_from_each_store(str(json.dumps(all_products_short)), query)
     )
     best_deal_products = response["best_deal_products"]
 
+    # Filter products to return only the best deals
     result = [p for p in all_products if p["title"] in best_deal_products]
     return jsonify(result)
 
