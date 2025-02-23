@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from scraping import tesco, supervalu, dunnes, aldi
 from ai_integration import best_deal_from_each_store
 import psycopg2
@@ -115,6 +116,7 @@ def insert_products_into_db(products, store_name):
     conn.close()
 
 
+@app.route("/api/shopping-list")
 def search_shopping_list_no_db():
     global id_counter
     shopping_list = request.args.getlist("items")
@@ -158,12 +160,11 @@ def search_shopping_list_no_db():
         )
         best_deal_products = response["best_deal_products"]
 
-        results[item] = best_deal_products
+        results[item] = [p for p in all_products if p["title"] in best_deal_products]
 
     return jsonify(results)
 
 
-@app.route("/api/shopping-list")
 def search_shopping_list():
     global id_counter
     shopping_list = request.args.getlist("items")
@@ -210,6 +211,52 @@ def search_shopping_list():
 
     return jsonify(results)
 
+
+@app.route("/api/products")
+def search_products():
+    global id_counter
+    query = request.args.get("q", "").lower()
+    print("QUERY:   ", query)
+
+    tesco_products = tesco(query)
+    for product in tesco_products:
+        product["store"] = "Tesco"
+        product["ID"] = id_counter
+        id_counter += 1
+
+    dunnes_products = dunnes(query)
+    for product in dunnes_products:
+        product["store"] = "Dunnes"
+        product["ID"] = id_counter
+        id_counter += 1
+
+    supervalu_products = supervalu(query)
+    for product in supervalu_products:
+        product["store"] = "SuperValu"
+        product["ID"] = id_counter
+        id_counter += 1
+
+    aldi_products = aldi(query)
+    for product in aldi_products:
+        product["store"] = "Aldi"
+        product["ID"] = id_counter
+        id_counter += 1
+
+    all_products = tesco_products + supervalu_products + dunnes_products + aldi_products
+    all_products_short = all_products.copy()
+    # remove images from all products
+    for product in all_products_short:
+        product.pop("image", None)
+
+    response = dict(
+        best_deal_from_each_store(str(json.dumps(all_products_short)), query)
+    )
+    best_deal_products = response["best_deal_products"]
+
+    result = [p for p in all_products if p["title"] in best_deal_products]
+    return jsonify(result)
+
+# CORS(app)
 
 if __name__ == "__main__":
     app.run(debug=True)
