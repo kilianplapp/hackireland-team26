@@ -9,7 +9,6 @@ export default function ShoppingListPage() {
   const [shoppingList, setShoppingList] = useState<string[]>([]);
   const [results, setResults] = useState<any>({}); 
 
-
   const handleAddProduct = () => {
     if (productInput.trim() !== "") {
       setShoppingList((prev) => [...prev, productInput.trim()]);
@@ -17,16 +16,13 @@ export default function ShoppingListPage() {
     }
   };
 
-
   const handleFetchData = async () => {
     try {
-      const queryParams = shoppingList
-        .map((item) => `items=${encodeURIComponent(item)}`)
-        .join("&");
-
-      const res = await fetch(`http://127.0.0.1:5000/api/shopping-list?${queryParams}`);
-      const data = await res.json();
-      setResults(data);
+      for (const item of shoppingList) {
+        const res = await fetch(`http://127.0.0.1:5000/api/products?q=${encodeURIComponent(item)}`);
+        const data = await res.json();
+        setResults((prevResults) => ({ ...prevResults, [item]: data }));
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
