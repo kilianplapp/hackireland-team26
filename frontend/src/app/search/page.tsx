@@ -16,10 +16,10 @@ export default function SearchPage({ searchParams }: { searchParams: { q?: strin
         </div>
 
         <div className="grid grid-cols-3 gap-8">
-          <Product />
-          <Product />
-          <Product />
-          <Product />
+          <Product query={query} shop="Tesco" />
+          <Product query={query} shop="Supervalu" />
+          <Product query={query} shop="Dunnes" />
+          <Product query={query} shop="Aldi" />
         </div>
       </div>
 
