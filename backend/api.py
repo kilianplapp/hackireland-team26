@@ -95,8 +95,7 @@ def insert_products_into_db(products, store_name):
     conn.commit()
     cur.close()
     conn.close()
-
-@app.route("/api/products")
+    
 @app.route("/api/products")
 def search_products():
     global id_counter
