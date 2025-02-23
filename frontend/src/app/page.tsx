@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import SearchBar from "@/components/SearchBar";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -11,7 +13,15 @@ export default function SearchPage() {
       <div className="text-3xl font-bold">
         SmartCart
       </div>
+
       <SearchBar />
+
+      <Link
+        href="/shopping-list"
+        className={`${buttonVariants({ variant: "default", size: "lg" })} font-bold`}
+      >
+        Shopping List
+      </Link>
     </div>
   );
 }
