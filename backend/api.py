@@ -116,110 +116,11 @@ def insert_products_into_db(products, store_name):
     cur.close()
     conn.close()
 
-
-@app.route("/api/shopping-list")
-@cross_origin()
-def search_shopping_list_no_db():
-    global id_counter
-    shopping_list = request.args.getlist("items")
-
-    results = {}
-    for item in shopping_list:
-        tesco_products = tesco(item)
-        for product in tesco_products:
-            product["store"] = "Tesco"
-            product["ID"] = id_counter
-            id_counter += 1
-
-        dunnes_products = dunnes(item)
-        for product in dunnes_products:
-            product["store"] = "Dunnes"
-            product["ID"] = id_counter
-            id_counter += 1
-
-        supervalu_products = supervalu(item)
-        for product in supervalu_products:
-            product["store"] = "SuperValu"
-            product["ID"] = id_counter
-            id_counter += 1
-
-        aldi_products = aldi(item)
-        for product in aldi_products:
-            product["store"] = "Aldi"
-            product["ID"] = id_counter
-            id_counter += 1
-
-        all_products = (
-            tesco_products + supervalu_products + dunnes_products + aldi_products
-        )
-        all_products_short = all_products.copy()
-        # remove images from all products
-        for product in all_products_short:
-            product.pop("image", None)
-
-        response = dict(
-            best_deal_from_each_store(str(json.dumps(all_products_short)), item)
-        )
-        best_deal_products = response["best_deal_products"]
-
-        results[item] = [p for p in all_products if p["title"] in best_deal_products]
-
-    return jsonify(results)
-
-
-def search_shopping_list():
-    global id_counter
-    shopping_list = request.args.getlist("items")
-
-    results = {}
-    for item in shopping_list:
-        products_from_db = fetch_cheapest_products_from_db(item.lower())
-        if not products_from_db:
-            tesco_products = tesco(item)
-            for product in tesco_products:
-                product["store"] = "Tesco"
-                product["ID"] = id_counter
-                id_counter += 1
-            insert_products_into_db(tesco_products, "Tesco")
-
-            dunnes_products = dunnes(item)
-            for product in dunnes_products:
-                product["store"] = "Dunnes"
-                product["ID"] = id_counter
-                id_counter += 1
-            insert_products_into_db(dunnes_products, "Dunnes")
-
-            supervalu_products = supervalu(item)
-            for product in supervalu_products:
-                product["store"] = "SuperValu"
-                product["ID"] = id_counter
-                id_counter += 1
-            insert_products_into_db(supervalu_products, "SuperValu")
-
-            aldi_products = aldi(item)
-            for product in aldi_products:
-                product["store"] = "Aldi"
-                product["ID"] = id_counter
-                id_counter += 1
-            insert_products_into_db(aldi_products, "Aldi")
-
-            all_products = (
-                tesco_products + supervalu_products + dunnes_products + aldi_products
-            )
-        else:
-            all_products = products_from_db
-
-        results[item] = all_products
-
-    return jsonify(results)
-
-
 @app.route("/api/products")
 @cross_origin()
 def search_products():
     global id_counter
     query = request.args.get("q", "").lower()
-    print("QUERY:   ", query)
 
     tesco_products = tesco(query)
     for product in tesco_products:
