@@ -1,11 +1,8 @@
 import psycopg2
 import re
 import datetime
-import pandas as pd
 import matplotlib.pyplot as plt
-from dunnes import dunnes
-from supervalu import supervalu
-from tesco import tesco
+from scraping import tesco, dunnes, supervalu, aldi
 
 def price_tracker(product_name):
     """Runs the full price tracking workflow for the given product."""
