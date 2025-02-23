@@ -1,26 +1,29 @@
-"use client"
+import Product from "@/components/Product";
+import Link from "next/link";
 
-import { useRouter } from "next/navigation";
-import SearchBar from "@/components/SearchBar";
-import { Button } from "@/components/ui/button";
-
-export default function HomePage() {
-  const router = useRouter();
+export default function SearchPage({ searchParams }: { searchParams: { q?: string } }) {
+  const query = searchParams.q || "";
 
   return (
-    <div className="flex flex-col gap-6 items-center justify-center h-screen max-w-5xl mx-auto">
-      <div className="text-3xl font-bold">SmartCart</div>
+    <div className="grid grid-cols-2">
+      <div className="px-8 py-6">
+        <Link href="/" className="text-3xl font-bold">
+          SmartCart
+        </Link>
 
-      <SearchBar />
+        <div className="mb-8 text-sm text-slate-500">
+          Showing 4 results for "{query}"
+        </div>
 
-      <Button
-        variant="default"
-        size="lg"
-        className="mt-6 px-6 py-3 text-lg"
-        onClick={() => router.push("/shopping-list")}
-      >
-        Create Shopping List
-      </Button>
+        <div className="grid grid-cols-3 gap-8">
+          <Product />
+          <Product />
+          <Product />
+          <Product />
+        </div>
+      </div>
+
+      {/* <Map /> */}
     </div>
   );
 }
