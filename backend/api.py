@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from scraping import tesco, supervalu, dunnes, aldi
-from ai_integration import group_and_sort
-import json
+from ai_integration import best_deal_from_each_store
 import psycopg2
 import re
 import datetime

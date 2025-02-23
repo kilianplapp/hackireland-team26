@@ -1,1 +1,1 @@
-from .gpt import group_and_sort
+from .gpt import best_deal_from_each_store

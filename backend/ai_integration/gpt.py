@@ -5,11 +5,10 @@ client = OpenAI()
 
 
 class Products(BaseModel):
-    groups: list[list[str]]
-    group_names: list[str]
+    best_deal_products: list[str]
 
 
-def group_and_sort(products_json: str, query: str):
+def best_deal_from_each_store(products_json: str, query: str):
     completion = client.beta.chat.completions.parse(
         model="gpt-4o-mini",
         messages=[
@@ -18,12 +17,11 @@ def group_and_sort(products_json: str, query: str):
                 "content": (
                     "You will be given json of grocery products, a result of a search for "
                     f"a users query, which was {query}. Output only one group which is most relevant to the users query. "
-                    "This group should contain JUST ONE PRODUCT FROM EACH SUPERMARKET."
+                    "This group should contain JUST ONE PRODUCT FROM EACH SUPERMARKET. The items in the group "
+                    "should also represent the best VALUE FOR MONEY from THE SAME CATEGORY OF ITEM."
                     "This allows the user to search and find only the most relevant and best deal from each supermarket."
-                    "Output human-readable names for the groups and the groups, "
-                    "which should include exact names of the items as elements."
+                    "Output the EXACT names of the products."
                     "Your output will be interpreted by a computer so you must not deviate from this format."
-                    "Only output a single group."
                 ),
             },
             {
