@@ -2,3 +2,4 @@ flask
 patchright
 psycopg2-binary
 matplotlib
+openai
