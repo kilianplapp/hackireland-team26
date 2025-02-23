@@ -19,39 +19,47 @@ def get_db_connection():
         port="5432"
     )
 
-def fetch_products_from_db(query):
+def fetch_cheapest_products_from_db(item):
     conn = get_db_connection()
     cur = conn.cursor()
     today_date = datetime.date.today().strftime('%Y_%m_%d')
     daily_table = f"products_{today_date}"
 
+    print(f"🔍 Searching for '{item}' in table {daily_table}")
+
     cur.execute(f"""
         SELECT name, price, store, category, quantity, availability
         FROM {daily_table}
-        WHERE LOWER(name) LIKE %s;
-    """, (f"%{query}%",))
+        WHERE LOWER(name) LIKE %s
+        ORDER BY price ASC;
+    """, (f"%{item}%",))
 
-    products = []
-    for row in cur.fetchall():
-        products.append({
-            "title": row[0],
-            "price": float(row[1]) if isinstance(row[1], Decimal) else row[1],  # Convert Decimal to float
-            "store": row[2],
-            "category": row[3],
-            "quantity": float(row[4]) if isinstance(row[4], Decimal) else row[4],  # Convert Decimal to float
-            "availability": row[5]
-        })
+    rows = cur.fetchall()
+    print(f"Found {len(rows)} results for '{item}' in the database.")
+
+    store_cheapest = {}
+    for row in rows:
+        store = row[2]  # Store name
+        if store not in store_cheapest:
+            store_cheapest[store] = {
+                "title": row[0],
+                "price": float(row[1]) if isinstance(row[1], Decimal) else row[1],
+                "store": row[2],
+                "category": row[3],
+                "quantity": float(row[4]) if isinstance(row[4], Decimal) else row[4],
+                "availability": row[5]
+            }
 
     cur.close()
     conn.close()
-    return products
+    return list(store_cheapest.values())
+
 
 def insert_products_into_db(products, store_name):
     conn = get_db_connection()
     cur = conn.cursor()
     today_date = datetime.date.today().strftime('%Y_%m_%d')
     daily_table = f"products_{today_date}"
-    all_products_table = "all_products"
 
     cur.execute(f"""
         CREATE TABLE IF NOT EXISTS {daily_table} (
@@ -95,58 +103,51 @@ def insert_products_into_db(products, store_name):
     conn.commit()
     cur.close()
     conn.close()
-    
-@app.route("/api/products")
-def search_products():
+
+@app.route("/api/shopping-list")
+def search_shopping_list():
     global id_counter
-    query = request.args.get("q", "").lower()
+    shopping_list = request.args.getlist("items")
 
-    products_from_db = fetch_products_from_db(query)
-    if not products_from_db:
-        tesco_products = tesco(query)
-        for product in tesco_products:
-            product["store"] = "Tesco"
-            product["ID"] = id_counter
-            id_counter += 1
-        insert_products_into_db(tesco_products, "Tesco")
+    results = {}
+    for item in shopping_list:
+        products_from_db = fetch_cheapest_products_from_db(item.lower())
+        if not products_from_db:
+            tesco_products = tesco(item)
+            for product in tesco_products:
+                product["store"] = "Tesco"
+                product["ID"] = id_counter
+                id_counter += 1
+            insert_products_into_db(tesco_products, "Tesco")
 
-        dunnes_products = dunnes(query)
-        for product in dunnes_products:
-            product["store"] = "Dunnes"
-            product["ID"] = id_counter
-            id_counter += 1
-        insert_products_into_db(dunnes_products, "Dunnes")
+            dunnes_products = dunnes(item)
+            for product in dunnes_products:
+                product["store"] = "Dunnes"
+                product["ID"] = id_counter
+                id_counter += 1
+            insert_products_into_db(dunnes_products, "Dunnes")
 
-        supervalu_products = supervalu(query)
-        for product in supervalu_products:
-            product["store"] = "SuperValu"
-            product["ID"] = id_counter
-            id_counter += 1
-        insert_products_into_db(supervalu_products, "SuperValu")
+            supervalu_products = supervalu(item)
+            for product in supervalu_products:
+                product["store"] = "SuperValu"
+                product["ID"] = id_counter
+                id_counter += 1
+            insert_products_into_db(supervalu_products, "SuperValu")
 
-        aldi_products = aldi(query)
-        for product in aldi_products:
-            product["store"] = "Aldi"
-            product["ID"] = id_counter
-            id_counter += 1
-        insert_products_into_db(aldi_products, "Aldi")
+            aldi_products = aldi(item)
+            for product in aldi_products:
+                product["store"] = "Aldi"
+                product["ID"] = id_counter
+                id_counter += 1
+            insert_products_into_db(aldi_products, "Aldi")
 
-        all_products = tesco_products + supervalu_products + dunnes_products + aldi_products
-    else:
-        all_products = products_from_db
+            all_products = tesco_products + supervalu_products + dunnes_products + aldi_products
+        else:
+            all_products = products_from_db
 
-    all_products_short = all_products.copy()
-    for product in all_products_short:
-        product.pop("image", None)
+        results[item] = all_products
 
-    response = group_and_sort(json.dumps(all_products_short), query)
-    
-    group_names = response.group_names
-    groups = response.groups
-
-    result = {group_names[0]: [p for p in all_products if p["title"] in groups[0]]}
-
-    return jsonify(result)
+    return jsonify(results)
 
 if __name__ == "__main__":
     app.run(debug=True)
